@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: sgd-postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-sgd}
+      POSTGRES_USER: ${DB_USERNAME:-sgd}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Defina DB_PASSWORD no arquivo .env}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - sgd-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-sgd} -d ${DB_NAME:-sgd}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # SonarQube: adicionado pelo Integrante 3
+
+volumes:
+  sgd-postgres-data:

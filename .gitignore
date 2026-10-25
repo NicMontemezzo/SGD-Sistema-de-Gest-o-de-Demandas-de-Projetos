@@ -1,0 +1,47 @@
+# ===== Segredos =====
+.env
+*.env
+!.env.example
+**/application-local.yml
+**/application-local.properties
+
+# ===== Java / Maven =====
+target/
+build/
+!.mvn/wrapper/maven-wrapper.jar
+*.class
+*.log
+hs_err_pid*
+
+# ===== Angular / Node =====
+node_modules/
+dist/
+.angular/
+out-tsc/
+coverage/
+npm-debug.log*
+yarn-error.log*
+
+# ===== IDEs =====
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/*
+!.vscode/extensions.json
+.settings/
+.project
+.classpath
+.factorypath
+.sts4-cache/
+nbproject/
+
+# ===== Relatórios gerados =====
+.scannerwork/
+jmeter/results/
+*.jtl
+
+# ===== Sistema operacional =====
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,48 @@
+# Nenhuma senha real fica neste arquivo: tudo vem de variáveis de ambiente (veja .env.example na raiz).
+spring:
+  application:
+    name: sgd
+  config:
+    # Lê o .env da raiz do repositório (rodando de backend/) ou da pasta atual, se existir
+    import: "optional:file:../.env[.properties],optional:file:.env[.properties]"
+  profiles:
+    # "mock" responde o login enquanto a API da faculdade não chega (FaculdadeGateway)
+    active: ${SPRING_PROFILES_ACTIVE:mock}
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/sgd}
+    username: ${DB_USERNAME:sgd}
+    password: ${DB_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-stacktrace: never
+
+sgd:
+  jwt:
+    secret: ${JWT_SECRET:}
+    expiration-ms: ${JWT_EXPIRATION_MS:3600000}
+  faculdade:
+    url: ${FACULDADE_API_URL:http://localhost:9090}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+logging:
+  level:
+    br.com.uniamerica.sgd: INFO
