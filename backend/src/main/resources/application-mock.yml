@@ -1,0 +1,13 @@
+# Perfil "mock": usuários fake da API da faculdade (MockFaculdadeGateway).
+# As senhas vêm do .env (MOCK_SENHA_ADMIN / MOCK_SENHA_ALUNO). Sem senha definida, o usuário não loga.
+sgd:
+  mock:
+    usuarios:
+      - login: admin
+        nome: Administrador Mock
+        perfil: ADMIN
+        senha: ${MOCK_SENHA_ADMIN:}
+      - login: aluno
+        nome: Aluno Mock
+        perfil: ALUNO
+        senha: ${MOCK_SENHA_ALUNO:}
