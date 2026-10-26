@@ -7,6 +7,7 @@ import br.com.uniamerica.sgd.entity.SituacaoDemanda;
 import br.com.uniamerica.sgd.repository.DemandaRepository;
 import br.com.uniamerica.sgd.repository.EmpresaRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,13 +42,18 @@ class DemandaControllerIT {
     private Empresa empresa;
 
     @BeforeEach
-    void limpar() {
+    void preparar() {
         demandaRepository.deleteAll();
-        empresaRepository.deleteAll();
-        empresa = new Empresa();                // ajuste aos campos obrigatórios da Empresa (Integrante 3)
+        empresa = new Empresa();
         empresa.setNome("Acme");
         empresa.setCnpj("12345678000195");
         empresa = empresaRepository.save(empresa);
+    }
+
+    @AfterEach
+    void limpar() {
+        demandaRepository.deleteAll();
+        empresaRepository.deleteById(empresa.getId());
     }
 
     private String json(String titulo, String descricao, Long empresaId, Long versao) throws Exception {
