@@ -34,7 +34,7 @@ SGDv1/
 │       ├── layout/      navbar e layout (MDB)
 │       └── pages/       login/  demandas/  nao-encontrada/
 ├── Documentações/
-├── docker-compose.yml               PostgreSQL (SonarQube entra depois)
+├── docker-compose.yml               PostgreSQL e SonarQube
 └── .env.example
 ```
 
@@ -52,7 +52,7 @@ SGDv1/
 cp .env.example .env          # edite DB_PASSWORD e JWT_SECRET
 
 # 2. Banco
-docker compose up -d
+docker compose up -d postgres
 
 # 3. Back-end (http://localhost:8080)
 cd backend
@@ -65,6 +65,30 @@ npm start
 ```
 
 O back-end lê o `.env` da raiz automaticamente. Swagger UI: http://localhost:8080/swagger-ui.html
+
+## SonarQube
+
+O SonarQube roda em Docker, com banco próprio (`sonar-db`), e só precisa estar no ar na hora da análise.
+
+```bash
+# 1. Subir (espere uns 2 minutos) e abrir http://localhost:9000
+docker compose up -d sonarqube
+```
+
+2. Primeiro acesso: usuário `admin`, senha `admin` (ele pede para trocar).
+3. **Create project → Manually**, chave `sgd`. Escolha **Locally** e gere um token. Guarde: ele só aparece uma vez.
+4. Rodar a análise (os testes e o JaCoCo rodam junto, então o Docker precisa estar aberto):
+
+```bash
+cd backend
+./mvnw clean verify sonar:sonar -Dsonar.projectKey=sgd -Dsonar.host.url=http://localhost:9000 -Dsonar.token=SEU_TOKEN
+```
+
+O token **nunca** vai para o `pom.xml`, o `.env` ou qualquer arquivo commitado: passe só pela linha de comando.
+O resultado aparece em http://localhost:9000/dashboard?id=sgd (abas **Issues**, **Security Hotspots** e
+**Duplications**). Para desligar: `docker compose stop sonarqube sonar-db`.
+
+Relatórios: `docs/sonar-1a-analise.md` (Integrante 3) e a 2ª análise (Integrante 5).
 
 ## Testes
 
