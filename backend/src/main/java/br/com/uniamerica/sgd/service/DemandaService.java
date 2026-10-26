@@ -89,7 +89,12 @@ public class DemandaService {
         }
 
         Demanda salva = demandaRepository.save(demanda);
-        log.info("Demanda {} atualizada", salva.getId());
+        // RN-04: grava agora (e não só no fim da transação) para o @Version já ter sido incrementado
+        // e a resposta devolver a versão nova; sem isso o front recebia a versão antiga e a próxima
+        // edição dava 409 sem ninguém ter mexido. Se outra edição gravou antes, o flush lança
+        // ObjectOptimisticLockingFailureException, que o GlobalExceptionHandler responde com 409.
+        demandaRepository.flush();
+        log.info("Demanda {} atualizada para a versão {}", salva.getId(), salva.getVersao());
         return DemandaResponse.from(salva);
     }
 
