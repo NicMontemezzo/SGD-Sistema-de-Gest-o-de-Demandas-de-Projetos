@@ -3,7 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MdbModalService } from 'mdb-angular-ui-kit/modal';
 import { Demanda, Pagina, SituacaoDemanda } from '../../models/demanda.model';
+import { Empresa } from '../../models/empresa.model';
+import { AuthService } from '../../core/services/auth.service';
 import { DemandaService } from '../../core/services/demanda.service';
+import { EmpresaService } from '../../core/services/empresa.service';
 import { NotificacaoService } from '../../core/services/notificacao.service';
 import { DemandaFormComponent } from '../demanda-form/demanda-form.component';
 
@@ -15,8 +18,10 @@ import { DemandaFormComponent } from '../demanda-form/demanda-form.component';
 })
 export class DemandaListaComponent implements OnInit {
   private readonly demandaService = inject(DemandaService);
+  private readonly empresaService = inject(EmpresaService);
   private readonly notificacao = inject(NotificacaoService);
   private readonly modalService = inject(MdbModalService);
+  private readonly auth = inject(AuthService);
 
   readonly tamanhoPagina = 10;
   readonly situacoes: { valor: SituacaoDemanda; rotulo: string }[] = [
@@ -24,17 +29,19 @@ export class DemandaListaComponent implements OnInit {
     { valor: 'ENCERRADA', rotulo: 'Encerrada' }
   ];
 
-  // TODO (Integrante 1): trocar por auth.service.perfil === 'ADMIN'.
-  // Enquanto o login não chega, os botões ficam visíveis; o back-end continua barrando quem não é ADMIN (403).
-  ehAdmin = true;
+  // RN-01: só ADMIN vê os botões. Esconder é só conforto: o back-end continua barrando quem não é ADMIN (403).
+  readonly ehAdmin = this.auth.isAdmin();
 
+  empresas: Empresa[] = [];
   pagina: Pagina<Demanda> | null = null;
   carregando = false;
 
   filtroTitulo = '';
   filtroSituacao: SituacaoDemanda | '' = '';
+  filtroEmpresaId: number | null = null;
 
   ngOnInit(): void {
+    this.empresaService.listar().subscribe(lista => (this.empresas = lista));
     this.carregar(0);
   }
 
@@ -43,7 +50,8 @@ export class DemandaListaComponent implements OnInit {
     this.demandaService
       .listar(numeroPagina, this.tamanhoPagina, {
         titulo: this.filtroTitulo.trim(),
-        situacao: this.filtroSituacao
+        situacao: this.filtroSituacao,
+        empresaId: this.filtroEmpresaId ?? undefined
       })
       .subscribe({
         next: resposta => {
@@ -62,6 +70,7 @@ export class DemandaListaComponent implements OnInit {
   limparFiltros(): void {
     this.filtroTitulo = '';
     this.filtroSituacao = '';
+    this.filtroEmpresaId = null;
     this.carregar(0);
   }
 
@@ -114,8 +123,9 @@ export class DemandaListaComponent implements OnInit {
     modalRef.onClose.subscribe(salva => {
       if (salva) {
         this.notificacao.sucesso(demanda ? 'Demanda atualizada.' : 'Demanda criada.');
-        this.carregar(this.pagina?.number ?? 0);
       }
+      // recarrega sempre: mesmo cancelando, outra pessoa pode ter alterado a demanda (RN-04)
+      this.carregar(this.pagina?.number ?? 0);
     });
   }
 }
