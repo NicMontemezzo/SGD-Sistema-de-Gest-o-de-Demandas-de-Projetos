@@ -10,7 +10,11 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface DemandaRepository extends JpaRepository<Demanda, Long>, JpaSpecificationExecutor<Demanda> {
 
-    boolean existsByTituloAndEmpresaId(String titulo, Long empresaId);
+    // RN-02: "Sistema X" e "sistema x" contam como o mesmo título
+    boolean existsByTituloIgnoreCaseAndEmpresaId(String titulo, Long empresaId);
+
+    // mesma verificação na edição, ignorando a própria demanda
+    boolean existsByTituloIgnoreCaseAndEmpresaIdAndIdNot(String titulo, Long empresaId, Long id);
 
     // traz a empresa junto na mesma consulta, evitando uma consulta extra por demanda da página
     @Override

@@ -5,6 +5,7 @@ import br.com.uniamerica.sgd.dto.DemandaResponse;
 import br.com.uniamerica.sgd.entity.Demanda;
 import br.com.uniamerica.sgd.entity.Empresa;
 import br.com.uniamerica.sgd.entity.SituacaoDemanda;
+import br.com.uniamerica.sgd.exception.ConflitoException;
 import br.com.uniamerica.sgd.exception.RecursoNaoEncontradoException;
 import br.com.uniamerica.sgd.exception.RegraNegocioException;
 import br.com.uniamerica.sgd.repository.DemandaRepository;
@@ -28,6 +29,8 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class DemandaService {
 
+    static final String MENSAGEM_TITULO_REPETIDO = "Já existe uma demanda com este título para a empresa";
+
     private final DemandaRepository demandaRepository;
     private final EmpresaRepository empresaRepository;
 
@@ -37,8 +40,10 @@ public class DemandaService {
 
         Empresa empresa = buscarEmpresa(request.empresaId());
 
-        if (demandaRepository.existsByTituloAndEmpresaId(request.titulo(), request.empresaId())) {
-            throw new RegraNegocioException("Já existe uma demanda com este título para a empresa");
+        // RN-02: título único dentro da mesma empresa
+        if (demandaRepository.existsByTituloIgnoreCaseAndEmpresaId(request.titulo(), request.empresaId())) {
+            log.warn("Título '{}' repetido na empresa {}", request.titulo(), request.empresaId());
+            throw new ConflitoException(MENSAGEM_TITULO_REPETIDO);
         }
 
         Demanda demanda = new Demanda();
@@ -57,15 +62,27 @@ public class DemandaService {
         Demanda demanda = demandaRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Demanda não encontrada: " + id));
 
+        // RN-03
         if (demanda.getSituacao() == SituacaoDemanda.ENCERRADA) {
             throw new RegraNegocioException("Demanda encerrada não pode ser editada");
         }
 
+        // RN-04: a edição precisa dizer qual versão leu; versão diferente da atual = outra pessoa salvou antes
+        if (request.versao() == null) {
+            throw new RegraNegocioException("A versão da demanda é obrigatória na edição");
+        }
         if (!Objects.equals(request.versao(), demanda.getVersao())) {
             throw new ObjectOptimisticLockingFailureException(Demanda.class, id);
         }
 
         Empresa empresa = buscarEmpresa(request.empresaId());
+
+        // RN-02: o novo título não pode repetir o de outra demanda da mesma empresa
+        if (demandaRepository.existsByTituloIgnoreCaseAndEmpresaIdAndIdNot(request.titulo(), request.empresaId(), id)) {
+            log.warn("Título '{}' repetido na empresa {}", request.titulo(), request.empresaId());
+            throw new ConflitoException(MENSAGEM_TITULO_REPETIDO);
+        }
+
         preencher(demanda, request, empresa);
         if (request.situacao() != null) {
             demanda.setSituacao(request.situacao());
