@@ -16,6 +16,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -23,6 +24,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import br.com.uniamerica.sgd.entity.Perfil;
 import br.com.uniamerica.sgd.exception.JsonAccessDeniedHandler;
 import br.com.uniamerica.sgd.exception.JsonAuthenticationEntryPoint;
+import br.com.uniamerica.sgd.security.JwtAuthFilter;
+import br.com.uniamerica.sgd.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -52,6 +55,7 @@ public class SecurityConfig {
 
     private final JsonAuthenticationEntryPoint authenticationEntryPoint;
     private final JsonAccessDeniedHandler accessDeniedHandler;
+    private final JwtUtil jwtUtil;
 
     @Value("${sgd.cors.allowed-origins}")
     private String origensPermitidas;
@@ -76,10 +80,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, ROTA_DEMANDAS).hasRole(admin)
                 .requestMatchers(HttpMethod.PUT, ROTA_DEMANDAS).hasRole(admin)
                 .requestMatchers(HttpMethod.DELETE, ROTA_DEMANDAS).hasRole(admin)
-                .anyRequest().authenticated());
-
-        // Integrante 1: registrar o filtro do token aqui, quando o JwtAuthFilter existir:
-        // http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .anyRequest().authenticated())
+            .addFilterBefore(new JwtAuthFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
