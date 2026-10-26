@@ -5,6 +5,9 @@
 **/application-local.yml
 **/application-local.properties
 
+# ===== Documentação interna do grupo (não vai para o repositório) =====
+Documentações/
+
 # ===== Java / Maven =====
 target/
 build/
@@ -38,7 +41,7 @@ nbproject/
 
 # ===== Relatórios gerados =====
 .scannerwork/
-jmeter/results/
+jmeter/resultados/
 *.jtl
 
 # ===== Sistema operacional =====
