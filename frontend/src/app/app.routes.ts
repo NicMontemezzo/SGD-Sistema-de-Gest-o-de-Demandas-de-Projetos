@@ -1,21 +1,19 @@
 import { Routes } from '@angular/router';
 import { LayoutComponent } from './layout/layout.component';
 import { NaoEncontradaComponent } from './pages/nao-encontrada/nao-encontrada.component';
+import { authGuard } from './core/guards/auth.guard';
 
-// Cada integrante só acrescenta a rota do próprio componente
 export const routes: Routes = [
   { path: '', redirectTo: 'demandas', pathMatch: 'full' },
-  // { path: 'login', component: LoginComponent },  (Integrante 1)
+  {
+    path: 'login',
+    loadComponent: () => import('./pages/login/login.component').then((m) => m.LoginComponent)
+  },
   {
     path: 'demandas',
     component: LayoutComponent,
-    // canActivate: [authGuard],  (Integrante 1)
-    children: [
-      // A lista (Integrante 5) abre o modal de cadastro/edição (Integrante 2) em "novo" e ":id/editar"
-      // { path: '', component: DemandaListaComponent },
-      // { path: 'novo', component: DemandaListaComponent },
-      // { path: ':id/editar', component: DemandaListaComponent }
-    ]
+    canActivate: [authGuard],
+    children: []
   },
   { path: '**', component: NaoEncontradaComponent }
 ];

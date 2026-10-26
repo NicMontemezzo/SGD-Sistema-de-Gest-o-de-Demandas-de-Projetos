@@ -1,0 +1,29 @@
+<section class="login-page d-flex justify-content-center align-items-center">
+  <div class="card login-card shadow-3">
+    <div class="card-body p-4">
+      <h3 class="text-center mb-4">SGD — Entrar</h3>
+
+      <form [formGroup]="form" (ngSubmit)="entrar()" novalidate>
+        <mdb-form-control class="mb-4">
+          <input mdbInput type="text" id="login" class="form-control" formControlName="login" autocomplete="username" />
+          <label mdbLabel class="form-label" for="login">Login (e-mail ou RA)</label>
+        </mdb-form-control>
+        @if (form.controls.login.touched && form.controls.login.invalid) {
+          <small class="text-danger d-block mb-3">Informe o login.</small>
+        }
+
+        <mdb-form-control class="mb-4">
+          <input mdbInput type="password" id="senha" class="form-control" formControlName="senha" autocomplete="current-password" />
+          <label mdbLabel class="form-label" for="senha">Senha</label>
+        </mdb-form-control>
+        @if (form.controls.senha.touched && form.controls.senha.invalid) {
+          <small class="text-danger d-block mb-3">Informe a senha.</small>
+        }
+
+        <button type="submit" class="btn btn-primary w-100" [disabled]="enviando">
+          {{ enviando ? 'Entrando...' : 'Entrar' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
