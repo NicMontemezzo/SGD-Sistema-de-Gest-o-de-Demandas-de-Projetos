@@ -1,7 +1,20 @@
 import { Routes } from '@angular/router';
+import { LayoutComponent } from './layout/layout.component';
+import { NaoEncontradaComponent } from './pages/nao-encontrada/nao-encontrada.component';
 import { DemandaListaComponent } from './components/demanda-lista/demanda-lista.component';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
-  { path: 'demandas', component: DemandaListaComponent },
-  { path: '', redirectTo: 'demandas', pathMatch: 'full' }
+  { path: '', redirectTo: 'demandas', pathMatch: 'full' },
+  {
+    path: 'login',
+    loadComponent: () => import('./pages/login/login.component').then((m) => m.LoginComponent)
+  },
+  {
+    path: 'demandas',
+    component: LayoutComponent,
+    canActivate: [authGuard],
+    children: [{ path: '', component: DemandaListaComponent }]
+  },
+  { path: '**', component: NaoEncontradaComponent }
 ];
