@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { AuthService } from '../core/services/auth.service';
 
 /** Navbar (MDB) com o usuário logado e o botão Sair. As páginas de demandas abrem no <router-outlet>. */
 @Component({
@@ -10,13 +11,14 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 })
 export class LayoutComponent {
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
 
-  // nome e perfil vêm do token pelo auth.service (Integrante 1)
-  nome = '';
-  perfil = '';
+  // nome e perfil gravados pelo auth.service no login
+  readonly nome = this.auth.nome() ?? '';
+  readonly perfil = this.auth.perfil() === 'ADMIN' ? 'Administrador' : 'Aluno';
 
   sair(): void {
-    // auth.service.logout() (Integrante 1) entra aqui para apagar o token
+    this.auth.logout();
     this.router.navigate(['/login']);
   }
 }
