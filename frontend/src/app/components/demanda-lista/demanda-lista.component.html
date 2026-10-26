@@ -40,7 +40,6 @@
           <td>
             <span class="badge"
                   [class.badge-success]="d.situacao === 'DISPONIVEL'"
-                  [class.badge-warning]="d.situacao === 'EM_ANDAMENTO'"
                   [class.badge-secondary]="d.situacao === 'ENCERRADA'">
               {{ rotuloSituacao(d.situacao) }}
             </span>

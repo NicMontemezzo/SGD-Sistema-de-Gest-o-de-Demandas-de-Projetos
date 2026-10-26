@@ -21,7 +21,6 @@ export class DemandaListaComponent implements OnInit {
   readonly tamanhoPagina = 10;
   readonly situacoes: { valor: SituacaoDemanda; rotulo: string }[] = [
     { valor: 'DISPONIVEL', rotulo: 'Disponível' },
-    { valor: 'EM_ANDAMENTO', rotulo: 'Em andamento' },
     { valor: 'ENCERRADA', rotulo: 'Encerrada' }
   ];
 
