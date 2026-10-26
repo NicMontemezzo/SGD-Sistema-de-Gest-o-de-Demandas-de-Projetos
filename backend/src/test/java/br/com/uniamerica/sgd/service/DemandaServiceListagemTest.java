@@ -110,4 +110,19 @@ class DemandaServiceListagemTest {
         assertEquals("Demanda um", resultado.getContent().get(0).titulo());
         verify(demandaRepository).findAll(any(Specification.class), eq(pageable));
     }
+
+    // Listar sem resultado
+
+    @Test
+    void listar_semResultado_retornaPaginaVazia() {
+        Pageable pageable = PageRequest.of(0, 10);
+        when(demandaRepository.findAll(any(Specification.class), eq(pageable)))
+                .thenReturn(Page.empty());
+
+        Page<DemandaResponse> resultado = demandaService.listar("inexistente", null, null, pageable);
+
+        assertTrue(resultado.isEmpty());
+        assertEquals(0, resultado.getTotalElements());
+        verify(demandaRepository).findAll(any(Specification.class), eq(pageable));
+    }
 }
