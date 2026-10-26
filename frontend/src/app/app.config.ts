@@ -4,13 +4,14 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
+import { errorInterceptor } from './core/interceptors/error.interceptor';
+import { jwtInterceptor } from './core/interceptors/jwt.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideAnimations(),
-    // jwt.interceptor (Integrante 1) e error.interceptor (Integrante 4) entram aqui
-    provideHttpClient(withInterceptors([]))
+    provideHttpClient(withInterceptors([jwtInterceptor, errorInterceptor]))
   ]
 };

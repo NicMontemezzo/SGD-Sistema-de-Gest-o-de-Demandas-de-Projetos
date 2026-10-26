@@ -98,6 +98,34 @@ cd backend
 ./mvnw verify     # unitários + integração (*IT, precisam do Docker rodando)
 ```
 
+## Erros e logs (padrão do grupo)
+
+**Erros.** Nunca devolva erro "na mão" no controller: lance uma exceção do pacote `exception` e o
+`GlobalExceptionHandler` monta o `ErrorResponse`.
+
+| Situação | Lance |
+|---|---|
+| id inexistente | `new RecursoNaoEncontradoException("Demanda " + id + " não encontrada")` |
+| regra de negócio violada | `new RegraNegocioException("Demanda encerrada não pode ser editada")` |
+| duplicidade | `new ConflitoException("Já existe demanda com este título na empresa")` |
+| login inválido | `CredenciaisInvalidasException` (já lançada pelo `FaculdadeGateway`) |
+
+Edição concorrente (`@Version`) e `@Valid` já são tratados sozinhos (409 e 400 com `details`).
+No `SecurityConfig`, registre `JsonAuthenticationEntryPoint` (401) e `JsonAccessDeniedHandler` (403)
+em `.exceptionHandling(...)`, para os erros de token também saírem no formato `ErrorResponse`.
+
+**Logs (SLF4J).** Use `@Slf4j` do Lombok na classe.
+
+| Nível | Quando | Exemplo |
+|---|---|---|
+| `info` | operação concluída nos pontos críticos dos services | `log.info("Demanda {} criada por {}", id, login)` |
+| `warn` | erro esperado do cliente (4xx) | `log.warn("Título duplicado na empresa {}", empresaId)` |
+| `error` | falha inesperada ou serviço externo; passe a exceção | `log.error("Falha ao excluir demanda {}", id, ex)` |
+
+- Use `{}` nos parâmetros, nunca concatenação (`"..." + x`): o SonarQube aponta.
+- **Nunca** registre senha, token JWT ou o corpo inteiro do login.
+- Não precisa logar de novo o que o `GlobalExceptionHandler` já registra (todos os 4xx e 5xx).
+
 ## Fluxo no GitHub
 
 - Branches: `main` (entrega), `develop` (integração) e `feature/<assunto>` por entrega

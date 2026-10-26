@@ -41,7 +41,7 @@ nbproject/
 
 # ===== Relatórios gerados =====
 .scannerwork/
-jmeter/results/
+jmeter/resultados/
 *.jtl
 
 # ===== Sistema operacional =====
