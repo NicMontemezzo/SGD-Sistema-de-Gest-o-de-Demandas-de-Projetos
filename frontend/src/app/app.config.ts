@@ -5,13 +5,13 @@ import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
+import { jwtInterceptor } from './core/interceptors/jwt.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideAnimations(),
-    // jwt.interceptor (Integrante 1) entra antes do errorInterceptor
-    provideHttpClient(withInterceptors([errorInterceptor]))
+    provideHttpClient(withInterceptors([jwtInterceptor, errorInterceptor]))
   ]
 };
