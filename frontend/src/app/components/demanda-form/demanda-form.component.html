@@ -1,0 +1,53 @@
+<div class="modal-header">
+  <h5 class="modal-title">{{ editando ? 'Editar demanda' : 'Nova demanda' }}</h5>
+  <button type="button" class="btn-close" aria-label="Fechar" (click)="cancelar()"></button>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="salvar()">
+  <div class="modal-body">
+    <div class="alert alert-danger" *ngIf="erro">{{ erro }}</div>
+
+    <div class="mb-3">
+      <label class="form-label" for="titulo">Título *</label>
+      <input id="titulo" class="form-control" formControlName="titulo" [class.is-invalid]="invalido('titulo')" />
+      <div class="invalid-feedback" *ngIf="invalido('titulo')">Informe de 5 a 120 caracteres.</div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label" for="descricao">Descrição *</label>
+      <textarea id="descricao" rows="4" class="form-control" formControlName="descricao"
+                [class.is-invalid]="invalido('descricao')"></textarea>
+      <div class="invalid-feedback" *ngIf="invalido('descricao')">Obrigatória, até 2000 caracteres.</div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label" for="tecnologias">Tecnologias</label>
+      <input id="tecnologias" class="form-control" formControlName="tecnologias" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label" for="empresaId">Empresa *</label>
+      <select id="empresaId" class="form-select" formControlName="empresaId" [class.is-invalid]="invalido('empresaId')">
+        <option [ngValue]="null" disabled>Selecione...</option>
+        <option *ngFor="let e of empresas" [ngValue]="e.id">{{ e.nome }}</option>
+      </select>
+      <div class="invalid-feedback" *ngIf="invalido('empresaId')">Selecione a empresa.</div>
+    </div>
+
+    <div class="mb-3" *ngIf="editando">
+      <label class="form-label" for="situacao">Situação</label>
+      <select id="situacao" class="form-select" formControlName="situacao">
+        <option value="DISPONIVEL">Disponível</option>
+        <option value="EM_ANDAMENTO">Em andamento</option>
+        <option value="ENCERRADA">Encerrada</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="cancelar()">Cancelar</button>
+    <button type="submit" class="btn btn-primary" [disabled]="salvando || form.disabled">
+      {{ salvando ? 'Salvando...' : 'Salvar' }}
+    </button>
+  </div>
+</form>
