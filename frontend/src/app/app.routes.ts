@@ -8,13 +8,16 @@ export const routes: Routes = [
   { path: '', redirectTo: 'demandas', pathMatch: 'full' },
   {
     path: 'login',
+    title: 'SGD | Entrar',
     loadComponent: () => import('./pages/login/login.component').then((m) => m.LoginComponent)
   },
   {
+    // rotas filhas abrem dentro do <router-outlet> do layout (navbar fica fixa)
     path: 'demandas',
     component: LayoutComponent,
-    canActivate: [authGuard],
-    children: [{ path: '', component: DemandaListaComponent }]
+    canActivate: [auth
+    canActivateChild: [authGuard],
+    children: [{ path: component:DemandaListaComponent }]
   },
-  { path: '**', component: NaoEncontradaComponent }
+  { path: '**', title: 'SGD | Página não encontrada', component: NaoEncontradaComponent }
 ];
