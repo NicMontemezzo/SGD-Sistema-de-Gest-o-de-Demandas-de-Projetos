@@ -15,9 +15,9 @@ export const routes: Routes = [
     // rotas filhas abrem dentro do <router-outlet> do layout (navbar fica fixa)
     path: 'demandas',
     component: LayoutComponent,
-    canActivate: [auth
+    canActivate: [authGuard],
     canActivateChild: [authGuard],
-    children: [{ path: component:DemandaListaComponent }]
+    children: [{ path: '', component: DemandaListaComponent }]
   },
   { path: '**', title: 'SGD | Página não encontrada', component: NaoEncontradaComponent }
 ];
