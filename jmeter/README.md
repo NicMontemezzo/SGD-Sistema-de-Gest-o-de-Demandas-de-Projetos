@@ -20,9 +20,11 @@ Ninguém precisa copiar token: o grupo 0 faz o login e guarda os tokens em propr
 ## Como rodar
 
 1. Suba o banco e o back-end no perfil `mock` (veja o README da raiz).
-2. Rode em **modo CLI**, que é a forma válida como resultado. Passe as senhas do mock do seu `.env`:
+2. Rode em **modo CLI**, que é a forma válida como resultado. Passe as senhas do mock do seu `.env`. A pasta
+   `jmeter/resultados/` não vem no repositório e o JMeter não a cria sozinho, por isso o `mkdir` vem antes:
 
 ```bash
+mkdir -p jmeter/resultados          # PowerShell: New-Item -ItemType Directory -Force jmeter\resultados
 jmeter -n -t jmeter/sgd-plano-carga.jmx \
   -JsenhaAdmin=SENHA_DO_ADMIN -JsenhaAluno=SENHA_DO_ALUNO \
   -l jmeter/resultados/sgd.jtl -e -o jmeter/resultados/sgd-relatorio
