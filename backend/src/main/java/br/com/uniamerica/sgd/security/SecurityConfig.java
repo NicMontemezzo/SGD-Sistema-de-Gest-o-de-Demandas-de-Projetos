@@ -34,6 +34,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
+                // CSRF desligado de propósito (Sonar java:S4502 revisado e aceito): o ataque depende de o navegador
+                // enviar sozinho um cookie de sessão, e esta API é stateless, sem cookie: o JWT vai no cabeçalho
+                // Authorization, que o navegador nunca envia automaticamente para outro site.
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

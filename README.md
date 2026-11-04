@@ -158,6 +158,7 @@ O plano `jmeter/sgd-plano-carga.jmx` tem um Thread Group por integrante (login, 
 de empresas, requisições inválidas e edição simultânea). Com o back-end no ar:
 
 ```bash
+mkdir -p jmeter/resultados       # a pasta não vem no repositório e o JMeter não a cria
 jmeter -n -t jmeter/sgd-plano-carga.jmx -JsenhaAdmin=SENHA_DO_ADMIN -JsenhaAluno=SENHA_DO_ALUNO \
   -l jmeter/resultados/sgd.jtl -e -o jmeter/resultados/sgd-relatorio
 ```
