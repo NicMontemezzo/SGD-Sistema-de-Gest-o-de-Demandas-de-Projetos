@@ -5,34 +5,32 @@ mostrar a evolução.
 
 - Data: ___
 - Commit analisado: ___
-- Comando: `./mvnw clean verify sonar:sonar -Dsonar.projectKey=sgd -Dsonar.host.url=http://localhost:9000 -Dsonar.token=***`
+- Comando: `./mvnw clean verify sonar:sonar -Dsonar.projectKey=SGD -Dsonar.host.url=http://localhost:9000 -Dsonar.token=***`
 
 ## Antes × depois
 
 | Métrica | 1ª análise | 2ª análise | Evolução |
 |---|---|---|---|
-| Bugs | ___ | ___ | ___ |
-| Vulnerabilidades | ___ | ___ | ___ |
-| Security Hotspots | ___ | ___ | ___ |
-| Code smells | ___ | ___ | ___ |
-| Duplicações (%) | ___ | ___ | ___ |
-| Cobertura (%) | ___ | ___ | ___ |
-| Quality Gate | ___ | ___ | ___ |
+| Quality Gate | Passed | ___ | ___ |
+| Bugs | 0 | ___ | ___ |
+| Vulnerabilidades | 1 | ___ | ___ |
+| Security Hotspots | 0 | ___ | ___ |
+| Code smells | 0 | ___ | ___ |
+| Duplicações (%) | 0,0% | ___ | ___ |
+| Cobertura (%) | 93,1% | ___ | ___ |
 
 ## Correções feitas
 
 | Problema (1ª análise) | Arquivo | Correção | Commit |
 |---|---|---|---|
-| | | | |
+| Cobertura contava `SgdApplication`, `config` e `dto` (93,1% no Sonar × 98,9% no JaCoCo) | `backend/pom.xml` | Propriedade `sonar.coverage.exclusions` com as mesmas exclusões do JaCoCo, para os dois relatórios medirem o mesmo código | ___ |
+| CSRF desligado (`java:S4502`) | `SecurityConfig.java` | Comentário no código explicando a decisão e problema marcado como **Accept** no SonarQube, com a justificativa | ___ |
 
 ## Problemas que ficaram (e por quê)
 
-Itens que o grupo decidiu não corrigir, com a justificativa. Exemplos comuns neste projeto:
-
 | Problema | Arquivo | Justificativa |
 |---|---|---|
-| Security Hotspot "CSRF desabilitado" | `SecurityConfig.java` | A API é *stateless* e usa token JWT no cabeçalho `Authorization`, sem cookie de sessão. A proteção CSRF se aplica a sessões baseadas em cookie, então desabilitá-la é a configuração correta aqui. Marcar como *Safe* no Sonar. |
-| | | |
+| CSRF desligado (`java:S4502`), revisado e aceito | `SecurityConfig.java` | A API é *stateless* e usa token JWT no cabeçalho `Authorization`, sem cookie de sessão. A proteção CSRF se aplica a sessões baseadas em cookie, então desabilitá-la é a configuração correta aqui. O problema deixa de contar como vulnerabilidade aberta porque foi revisado, não porque o código mudou. |
 
 ## Conclusão
 
