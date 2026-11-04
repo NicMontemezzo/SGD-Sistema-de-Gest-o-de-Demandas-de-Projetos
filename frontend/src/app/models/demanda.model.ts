@@ -1,4 +1,5 @@
-export type SituacaoDemanda = 'DISPONIVEL' | 'EM_ANDAMENTO' | 'ENCERRADA';
+// RN-03: só estas duas situações existem no back-end
+export type SituacaoDemanda = 'DISPONIVEL' | 'ENCERRADA';
 
 export interface Demanda {
   id: number;

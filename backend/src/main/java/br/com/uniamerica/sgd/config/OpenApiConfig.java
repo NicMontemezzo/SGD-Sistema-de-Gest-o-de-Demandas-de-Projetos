@@ -18,7 +18,11 @@ public class OpenApiConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("SGD - Sistema de Gestão de Demandas de Projetos")
-                        .version("1.0"))
+                        .version("1.0")
+                        .description("""
+                                Para testar as rotas protegidas: faça POST /api/auth/login, copie o token \
+                                da resposta e cole em Authorize. Consultas aceitam qualquer usuário logado; \
+                                criar, editar e excluir demandas exigem perfil ADMIN."""))
                 .components(new Components()
                         .addSecuritySchemes(ESQUEMA_BEARER, new SecurityScheme()
                                 .type(SecurityScheme.Type.HTTP)

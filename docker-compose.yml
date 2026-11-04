@@ -16,7 +16,44 @@ services:
       timeout: 5s
       retries: 10
 
-  # SonarQube: adicionado pelo Integrante 3
+  # SonarQube (http://localhost:9000) com banco próprio. Suba só quando for analisar:
+  # docker compose up -d sonarqube
+  sonar-db:
+    image: postgres:16-alpine
+    container_name: sgd-sonar-db
+    environment:
+      POSTGRES_DB: sonar
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: ${SONAR_DB_PASSWORD:-sonar}
+    volumes:
+      - sgd-sonar-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sonar -d sonar"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  sonarqube:
+    image: sonarqube:community
+    container_name: sgd-sonarqube
+    depends_on:
+      sonar-db:
+        condition: service_healthy
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://sonar-db:5432/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: ${SONAR_DB_PASSWORD:-sonar}
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
+    ports:
+      - "9000:9000"
+    volumes:
+      - sgd-sonar-data:/opt/sonarqube/data
+      - sgd-sonar-extensions:/opt/sonarqube/extensions
+      - sgd-sonar-logs:/opt/sonarqube/logs
 
 volumes:
   sgd-postgres-data:
+  sgd-sonar-db-data:
+  sgd-sonar-data:
+  sgd-sonar-extensions:
+  sgd-sonar-logs:

@@ -5,6 +5,7 @@ import br.com.uniamerica.sgd.dto.DemandaResponse;
 import br.com.uniamerica.sgd.entity.Demanda;
 import br.com.uniamerica.sgd.entity.Empresa;
 import br.com.uniamerica.sgd.entity.SituacaoDemanda;
+import br.com.uniamerica.sgd.exception.ConflitoException;
 import br.com.uniamerica.sgd.exception.RecursoNaoEncontradoException;
 import br.com.uniamerica.sgd.exception.RegraNegocioException;
 import br.com.uniamerica.sgd.repository.DemandaRepository;
@@ -58,7 +59,7 @@ class DemandaServiceTest {
     @Test
     void deveCriarDemandaComDadosValidos() {
         when(empresaRepository.findById(1L)).thenReturn(Optional.of(empresa()));
-        when(demandaRepository.existsByTituloAndEmpresaId("Sistema de estoque", 1L)).thenReturn(false);
+        when(demandaRepository.existsByTituloIgnoreCaseAndEmpresaId("Sistema de estoque", 1L)).thenReturn(false);
         when(demandaRepository.save(any(Demanda.class))).thenAnswer(inv -> {
             Demanda d = inv.getArgument(0);
             d.setId(10L);
@@ -76,14 +77,14 @@ class DemandaServiceTest {
     @Test
     void deveRespeitarSituacaoInformadaAoCriar() {
         when(empresaRepository.findById(1L)).thenReturn(Optional.of(empresa()));
-        when(demandaRepository.existsByTituloAndEmpresaId(any(), any())).thenReturn(false);
+        when(demandaRepository.existsByTituloIgnoreCaseAndEmpresaId(any(), any())).thenReturn(false);
         when(demandaRepository.save(any(Demanda.class))).thenAnswer(inv -> inv.getArgument(0));
         DemandaRequest req = new DemandaRequest("Sistema de estoque", "Desc", null, 1L,
-                SituacaoDemanda.EM_ANDAMENTO, null);
+                SituacaoDemanda.ENCERRADA, null);
 
         DemandaResponse resposta = demandaService.criar(req);
 
-        assertEquals(SituacaoDemanda.EM_ANDAMENTO, resposta.situacao());
+        assertEquals(SituacaoDemanda.ENCERRADA, resposta.situacao());
     }
 
     @Test
@@ -98,9 +99,9 @@ class DemandaServiceTest {
     @Test
     void deveLancarExcecaoQuandoTituloRepetidoNaMesmaEmpresa() {
         when(empresaRepository.findById(1L)).thenReturn(Optional.of(empresa()));
-        when(demandaRepository.existsByTituloAndEmpresaId("Sistema de estoque", 1L)).thenReturn(true);
+        when(demandaRepository.existsByTituloIgnoreCaseAndEmpresaId("Sistema de estoque", 1L)).thenReturn(true);
 
-        assertThrows(RegraNegocioException.class,
+        assertThrows(ConflitoException.class,
                 () -> demandaService.criar(request(1L, null)));
         verify(demandaRepository, never()).save(any());
     }
@@ -112,25 +113,25 @@ class DemandaServiceTest {
         when(empresaRepository.findById(1L)).thenReturn(Optional.of(empresa()));
         when(demandaRepository.save(any(Demanda.class))).thenAnswer(inv -> inv.getArgument(0));
         DemandaRequest req = new DemandaRequest("Novo título", "Nova desc", "Spring", 1L,
-                SituacaoDemanda.EM_ANDAMENTO, 0L);
+                SituacaoDemanda.ENCERRADA, 0L);
 
         DemandaResponse resposta = demandaService.atualizar(10L, req);
 
         assertEquals("Novo título", resposta.titulo());
-        assertEquals(SituacaoDemanda.EM_ANDAMENTO, resposta.situacao());
+        assertEquals(SituacaoDemanda.ENCERRADA, resposta.situacao());
         verify(demandaRepository).save(existente);
     }
 
     @Test
     void deveManterSituacaoQuandoNaoInformadaNaAtualizacao() {
-        Demanda existente = demandaExistente(SituacaoDemanda.EM_ANDAMENTO);
+        Demanda existente = demandaExistente(SituacaoDemanda.DISPONIVEL);
         when(demandaRepository.findById(10L)).thenReturn(Optional.of(existente));
         when(empresaRepository.findById(1L)).thenReturn(Optional.of(empresa()));
         when(demandaRepository.save(any(Demanda.class))).thenAnswer(inv -> inv.getArgument(0));
 
         DemandaResponse resposta = demandaService.atualizar(10L, request(1L, 0L));
 
-        assertEquals(SituacaoDemanda.EM_ANDAMENTO, resposta.situacao());
+        assertEquals(SituacaoDemanda.DISPONIVEL, resposta.situacao());
     }
 
     @Test

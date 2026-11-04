@@ -5,7 +5,7 @@
 
 <form [formGroup]="form" (ngSubmit)="salvar()">
   <div class="modal-body">
-    <div class="alert alert-danger" *ngIf="erro">{{ erro }}</div>
+    <div class="alert alert-warning" *ngIf="aviso">{{ aviso }}</div>
 
     <div class="mb-3">
       <label class="form-label" for="titulo">Título *</label>
@@ -38,9 +38,11 @@
       <label class="form-label" for="situacao">Situação</label>
       <select id="situacao" class="form-select" formControlName="situacao">
         <option value="DISPONIVEL">Disponível</option>
-        <option value="EM_ANDAMENTO">Em andamento</option>
         <option value="ENCERRADA">Encerrada</option>
       </select>
+      <div class="form-text" *ngIf="form.controls.situacao.value === 'ENCERRADA' && demanda?.situacao !== 'ENCERRADA'">
+        Depois de encerrada, a demanda não poderá mais ser editada.
+      </div>
     </div>
   </div>
 

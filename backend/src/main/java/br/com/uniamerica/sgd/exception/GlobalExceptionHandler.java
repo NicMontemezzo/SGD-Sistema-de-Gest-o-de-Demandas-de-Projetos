@@ -2,6 +2,8 @@ package br.com.uniamerica.sgd.exception;
 
 import java.util.List;
 
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -36,6 +38,8 @@ public class GlobalExceptionHandler {
     static final String MENSAGEM_JSON_MALFORMADO = "Corpo da requisição ausente ou malformado";
     static final String MENSAGEM_CONFLITO_VERSAO =
             "O registro foi alterado por outra pessoa. Recarregue e tente novamente.";
+    static final String MENSAGEM_INTEGRIDADE =
+            "Operação conflita com dados já existentes (registro duplicado ou em uso).";
     static final String MENSAGEM_NAO_AUTENTICADO = "Autenticação necessária";
     static final String MENSAGEM_ACESSO_NEGADO = "Acesso negado";
 
@@ -60,6 +64,17 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> tratarConflitoDeVersao(ObjectOptimisticLockingFailureException ex,
             HttpServletRequest request) {
         return montar(HttpStatus.CONFLICT, MENSAGEM_CONFLITO_VERSAO, request, List.of());
+    }
+
+    /**
+     * Restrição do banco violada (ex.: duas requisições simultâneas gravando o mesmo título na mesma empresa,
+     * que passam juntas pela verificação do service). Sem este handler viraria 500.
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> tratarIntegridade(DataIntegrityViolationException ex,
+            HttpServletRequest request) {
+        log.debug("Detalhe da violação de integridade: {}", ex.getMostSpecificCause().getMessage());
+        return montar(HttpStatus.CONFLICT, MENSAGEM_INTEGRIDADE, request, List.of());
     }
 
     @ExceptionHandler(CredenciaisInvalidasException.class)
@@ -106,6 +121,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> tratarTipoInvalido(MethodArgumentTypeMismatchException ex,
             HttpServletRequest request) {
         String mensagem = "Valor inválido para o parâmetro '%s'".formatted(ex.getName());
+        return montar(HttpStatus.BAD_REQUEST, mensagem, request, List.of());
+    }
+
+    /** Ex.: GET /api/demandas?sort=campoQueNaoExiste. */
+    @ExceptionHandler(PropertyReferenceException.class)
+    public ResponseEntity<ErrorResponse> tratarOrdenacaoInvalida(PropertyReferenceException ex,
+            HttpServletRequest request) {
+        String mensagem = "Campo de ordenação inválido: '%s'".formatted(ex.getPropertyName());
         return montar(HttpStatus.BAD_REQUEST, mensagem, request, List.of());
     }
 

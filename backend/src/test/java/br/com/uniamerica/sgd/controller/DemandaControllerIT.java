@@ -128,11 +128,11 @@ class DemandaControllerIT {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void tituloRepetidoNaEmpresaRetorna400() throws Exception {
+    void tituloRepetidoNaEmpresaRetorna409() throws Exception {
         salvarDemanda("Sistema de estoque", SituacaoDemanda.DISPONIVEL);
 
         postar(json("Sistema de estoque", "Desc", empresa.getId(), null))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isConflict());
     }
 
     // ---------- PUT ----------

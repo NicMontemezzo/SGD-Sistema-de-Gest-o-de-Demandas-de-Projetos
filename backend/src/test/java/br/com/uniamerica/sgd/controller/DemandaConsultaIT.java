@@ -92,12 +92,12 @@ class DemandaConsultaIT {
     @WithMockUser(roles = "ALUNO")
     void listar_filtraPorSituacao() throws Exception {
         salvarDemanda("Demanda aberta", acme, SituacaoDemanda.DISPONIVEL);
-        salvarDemanda("Demanda andando", acme, SituacaoDemanda.EM_ANDAMENTO);
+        salvarDemanda("Demanda encerrada", acme, SituacaoDemanda.ENCERRADA);
 
-        mockMvc.perform(get("/api/demandas").param("situacao", "EM_ANDAMENTO"))
+        mockMvc.perform(get("/api/demandas").param("situacao", "ENCERRADA"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalElements").value(1))
-                .andExpect(jsonPath("$.content[0].titulo").value("Demanda andando"));
+                .andExpect(jsonPath("$.content[0].titulo").value("Demanda encerrada"));
     }
 
     @Test

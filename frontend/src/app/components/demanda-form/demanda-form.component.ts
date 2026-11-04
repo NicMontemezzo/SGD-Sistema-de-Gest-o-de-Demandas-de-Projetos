@@ -1,11 +1,12 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { MdbModalRef } from 'mdb-angular-ui-kit/modal';
 import { Demanda, DemandaRequest } from '../../models/demanda.model';
 import { Empresa } from '../../models/empresa.model';
 import { DemandaService } from '../../core/services/demanda.service';
-import { EmpresaService } from '../../core/services/empresa.service'; // Integrante 3
+import { EmpresaService } from '../../core/services/empresa.service';
 
 @Component({
   selector: 'app-demanda-form',
@@ -24,7 +25,7 @@ export class DemandaFormComponent implements OnInit {
 
   empresas: Empresa[] = [];
   salvando = false;
-  erro = '';
+  aviso = '';
 
   form = this.fb.nonNullable.group({
     titulo: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(120)]],
@@ -51,7 +52,7 @@ export class DemandaFormComponent implements OnInit {
       });
       if (this.demanda.situacao === 'ENCERRADA') {
         this.form.disable();
-        this.erro = 'Demanda encerrada não pode ser editada.';
+        this.aviso = 'Demanda encerrada não pode ser editada.';
       }
     }
   }
@@ -67,7 +68,6 @@ export class DemandaFormComponent implements OnInit {
       return;
     }
     this.salvando = true;
-    this.erro = '';
 
     const v = this.form.getRawValue();
     const dados: DemandaRequest = {
@@ -85,9 +85,14 @@ export class DemandaFormComponent implements OnInit {
 
     chamada.subscribe({
       next: salva => this.modalRef.close(salva),
-      error: e => {
+      // A mensagem do erro (400 com os campos, 409 título repetido ou versão desatualizada...)
+      // já aparece pelo errorInterceptor. O modal fica aberto para corrigir, exceto se a demanda
+      // foi excluída por outra pessoa (404): aí não há o que salvar.
+      error: (e: HttpErrorResponse) => {
         this.salvando = false;
-        this.erro = e?.error?.details?.join(' · ') ?? e?.error?.message ?? 'Erro ao salvar a demanda.';
+        if (e.status === 404 && this.editando) {
+          this.modalRef.close();
+        }
       }
     });
   }
