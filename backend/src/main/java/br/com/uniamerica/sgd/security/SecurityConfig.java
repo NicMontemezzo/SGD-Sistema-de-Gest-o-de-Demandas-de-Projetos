@@ -39,6 +39,8 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login").permitAll()
+                        // página de erro interna do Spring Boot: sem isso, um erro inesperado vira 401
+                        .requestMatchers("/error").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/demandas/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/demandas/**").hasRole("ADMIN")

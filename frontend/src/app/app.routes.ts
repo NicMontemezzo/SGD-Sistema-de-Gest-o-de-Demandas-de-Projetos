@@ -17,7 +17,7 @@ export const routes: Routes = [
     component: LayoutComponent,
     canActivate: [authGuard],
     canActivateChild: [authGuard],
-    children: [{ path: '', component: DemandaListaComponent }]
+    children: [{ path: '', title: 'SGD | Demandas', component: DemandaListaComponent }]
   },
   { path: '**', title: 'SGD | Página não encontrada', component: NaoEncontradaComponent }
 ];
