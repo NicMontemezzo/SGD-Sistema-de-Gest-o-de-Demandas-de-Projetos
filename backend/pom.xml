@@ -153,6 +153,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <!-- Ao terminar, a JVM dos ITs fecha os contextos Spring e os containers do Testcontainers.
+                         Com o limite padrão (30 s) ela pode ser morta antes de o JaCoCo gravar o jacoco.exec,
+                         que fica truncado e quebra o relatório (EOFException). -->
+                    <forkedProcessExitTimeoutInSeconds>180</forkedProcessExitTimeoutInSeconds>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
