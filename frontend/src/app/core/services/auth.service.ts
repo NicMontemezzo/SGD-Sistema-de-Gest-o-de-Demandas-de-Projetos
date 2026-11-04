@@ -36,12 +36,35 @@ export class AuthService {
     return localStorage.getItem(CHAVE_PERFIL) as Perfil | null;
   }
 
+  /** Há token e ele ainda não expirou. Token vencido é apagado na hora. */
   autenticado(): boolean {
-    return this.token() !== null;
+    const token = this.token();
+    if (!token) {
+      return false;
+    }
+    if (this.expirado(token)) {
+      this.logout();
+      return false;
+    }
+    return true;
   }
 
   isAdmin(): boolean {
     return this.perfil() === 'ADMIN';
+  }
+
+  /**
+   * Lê o campo "exp" (segundos) do payload do JWT. Só serve para a tela saber se a sessão acabou:
+   * quem valida a assinatura de verdade é o back-end. Token ilegível conta como expirado.
+   */
+  private expirado(token: string): boolean {
+    try {
+      const payload = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const { exp } = JSON.parse(atob(payload)) as { exp?: number };
+      return typeof exp === 'number' && exp * 1000 <= Date.now();
+    } catch {
+      return true;
+    }
   }
 
   private guardar(resposta: LoginResponse): void {
